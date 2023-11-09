@@ -7,7 +7,7 @@ AWS_LOG_FILE="/tmp/aws_s3_cp_log.txt"
 
 # Run the command with sudo and store the output in a file with current date and time
 OUTPUT_FILE="$LOG_FILE_PREFIX-$(date +'%Y%m%d%H%M%S').txt"
-sudo sudo lsof -i > $OUTPUT_FILE
+sudo lsof -i > $OUTPUT_FILE
 
 # Upload the output file to S3 and log the result
 aws s3 cp $OUTPUT_FILE s3://$S3_BUCKET_NAME/ > $AWS_LOG_FILE 2>&1
