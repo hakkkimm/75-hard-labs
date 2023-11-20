@@ -2,6 +2,16 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "EC2 Instances behind Load Balancer"
 Resources:
 
+  ALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Enable HTTP traffic for ALB"
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          
   WebSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
@@ -11,7 +21,11 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: X.X.X.X/32
-          
+        - SourceSecurityGroupId: !GetAtt ALB.SecurityGroups[0]
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+
   InstanceA:
     Type: "AWS::EC2::Instance"
     Properties:
@@ -57,10 +71,6 @@ Resources:
     Properties:
       GroupDescription: "Enable HTTP traffic for ALB"
       SecurityGroupIngress:
-        - SourceSecurityGroupId: !GetAtt WebSecurityGroup.GroupId
-          IpProtocol: "tcp"
-          FromPort: 80
-          ToPort: 80
         - CidrIp: "0.0.0.0/0"
           IpProtocol: "tcp"
           FromPort: 80
