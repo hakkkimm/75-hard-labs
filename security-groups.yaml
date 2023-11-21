@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create Security Groups for EC2 Instances and ALB"
+
+Resources:
+  WebSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Enable HTTP traffic"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: X.X.X.X/32
+
+  ALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Enable HTTP traffic for ALB"
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !GetAtt WebSecurityGroup.GroupId
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          
+  WebSec1:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Enable HTTP traffic"
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+
+
+Outputs:
+  WebSecurityGroupId:
+    Value: !GetAtt WebSecurityGroup.GroupId
+    Export:
+      Name: "WebSecurityGroupId"
+
+  WebSec1Id:
+    Value: !GetAtt WebSec1.GroupId
+    Export:
+      Name: "WebSec1Id"
+
+  ALBSecurityGroupId:
+    Value: !GetAtt ALBSecurityGroup.GroupId
+    Export:
+      Name: "ALBSecurityGroupId"
