@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  hhsshsshhkjsnssssbucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: BucketOwnerFullControl
+# this notification configuration part shall be executed in the UPDATE stack, not on the first creation itself, we shall omit this 5 lines.
+      NotificationConfiguration:
+        TopicConfigurations:
+          - Topic:
+              Ref: MySNSTopic
+            Event: 's3:ObjectCreated:Put' 
+         
+  MySNSTopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      DisplayName: 'myS3SNSNotification'
+
+  MySNSSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      Protocol: 'email'
+      TopicArn: !Ref MySNSTopic
+      Endpoint: 'X)X)X)X)X@gmail.com'
+  
+  SNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: MyTopicPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: Statement-id
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: sns:Publish
+            Resource:
+              Ref: MySNSTopic
+            Condition:
+              ArnLike:
+                aws:SourceArn:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Ref: hhsshsshhkjsnssssbucket
+
+      Topics:
+        - Ref: MySNSTopic
